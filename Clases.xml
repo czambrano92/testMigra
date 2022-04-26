@@ -1,0 +1,897 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="IRIS" version="26" zv="IRIS for Windows (x86-64) 2021.2 (Build 651U)" ts="2022-04-26 17:17:26">
+<Class name="BO.GetPatentes">
+<IncludeCode>EnsSQLTypes</IncludeCode>
+<Super>Ens.BusinessOperation</Super>
+<TimeChanged>66221,52183.0360748</TimeChanged>
+<TimeCreated>66220,40766.4564956</TimeCreated>
+
+<Parameter name="ADAPTER">
+<Default>EnsLib.SQL.OutboundAdapter</Default>
+</Parameter>
+
+<Property name="Adapter">
+<Type>EnsLib.SQL.OutboundAdapter</Type>
+</Property>
+
+<Method name="GetPatentes">
+<FormalSpec>pRequest:BO.Request,*pResponse:BO.Response</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	$$$TRACE("BO.GetPatentes STARTED!")
+	Set tSC = $System.Status.OK()
+	Try
+	{
+		Set tResultSet = ##class(%ResultSet).%New()
+        Set query = "SELECT TOP (10) [ALC_ANO] as ID ,[ALC_SEM] as Name,[ALC_CLASE] as Age FROM [patentes].[dbo].[PC_ALCOHOL]"
+        Set tSC=..Adapter.ExecuteQuery(.tResultSet,query)
+        
+        if (tSC '= 1) { 			
+			$$$TRACE("ERROR tSC"_tSC)
+		}
+		else{			 	
+			$$$TRACE("OK"_tResultSet.%ROWCOUNT)
+			if (tResultSet.Next())
+	    	{$$$TRACE("DENTRO DE RS.NEXT()")
+				$$$TRACE(tResultSet.Get("Id"))				
+			}
+		}
+		
+		Quit:$$$ISERR(tSC) 
+	}
+	Catch (ex){
+		$$$TRACE("Error : BO.GetPatentes : ("_ex_")")
+	}
+	Quit tSC
+]]></Implementation>
+</Method>
+
+<XData name="MessageMap">
+<Data><![CDATA[
+<MapItems>
+	<MapItem MessageType="BO.Request"> 
+		<Method>GetPatentes</Method>
+	</MapItem>
+</MapItems>
+]]></Data>
+</XData>
+</Class>
+
+
+<Class name="BO.Request">
+<Super>Ens.Request</Super>
+<TimeChanged>66221,38995.5246925</TimeChanged>
+<TimeCreated>66221,38993.2636281</TimeCreated>
+
+<Property name="query">
+<Type>%String</Type>
+<Parameter name="MAXLEN" value="100000"/>
+</Property>
+
+<Storage name="Default">
+<Type>%Storage.Persistent</Type>
+<DefaultData>RequestDefaultData</DefaultData>
+<Data name="RequestDefaultData">
+<Structure>listnode</Structure>
+<Subscript>"Request"</Subscript>
+<Value name="1">
+<Value>query</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+
+
+<Class name="BO.Response">
+<Super>Ens.Response</Super>
+<TimeChanged>66221,39037.1176379</TimeChanged>
+<TimeCreated>66221,39034.3719535</TimeCreated>
+
+<Property name="result">
+<Type>%String</Type>
+<Parameter name="MAXLEN" value="100000"/>
+</Property>
+
+<Storage name="Default">
+<Type>%Storage.Persistent</Type>
+<DefaultData>ResponseDefaultData</DefaultData>
+<Data name="ResponseDefaultData">
+<Structure>listnode</Structure>
+<Subscript>"Response"</Subscript>
+<Value name="1">
+<Value>result</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+
+
+
+
+<Class name="BS.Ejecutor">
+<Super>Ens.BusinessService</Super>
+<TimeChanged>66221,40537.6610997</TimeChanged>
+<TimeCreated>66220,40066.1493456</TimeCreated>
+
+<Parameter name="ADAPTER">
+<Default>Ens.InboundAdapter</Default>
+</Parameter>
+
+<Method name="OnProcessInput">
+<FormalSpec>pInput:%RegisteredObject,*pOutput:%RegisteredObject</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	Set tSC = $System.Status.OK()
+	Try
+	{
+		Set pInput=##class(BO.Request).%New()
+		Set tSC = ..SendRequestAsync("BO OBTIENE PATENTES", pInput, .pOutput)		
+		$$$TRACE("SendRequestSync ("_tSC_")")
+		Quit:$$$ISERR(tSC)				
+	} catch(ex)
+ 	{
+ 		$$$TRACE("BS EJECUTOR Catch Exception : ("_ex_")")
+ 		set tSC = ex.AsStatus()
+ 	}
+ 	Quit tSC
+]]></Implementation>
+</Method>
+</Class>
+
+
+
+
+<Class name="DESTINOS.PC.CERTIFICADOS.Record">
+<Description>
+RECORDMAP: Generated from RecordMap 'DESTINOS.PC.CERTIFICADOS'
+on 2022-04-26 at 17:10:49.883 [2022-04-26 21:10:49.883 UTC]
+by user cesar</Description>
+<ProcedureBlock>1</ProcedureBlock>
+<Super>%Persistent,%XML.Adaptor,Ens.Request,EnsLib.RecordMap.Base</Super>
+<TimeChanged>66225,61849.8856418</TimeChanged>
+<TimeCreated>66225,61849.8830936</TimeCreated>
+<Inheritance>right</Inheritance>
+
+<Parameter name="INCLUDETOPFIELDS">
+<Default>1</Default>
+</Parameter>
+
+<Property name="numero">
+<Type>%Numeric</Type>
+<Required>1</Required>
+<SqlColumnNumber>2</SqlColumnNumber>
+</Property>
+
+<Property name="ano">
+<Type>%Numeric</Type>
+<SqlColumnNumber>3</SqlColumnNumber>
+</Property>
+
+<Property name="sem">
+<Type>%Numeric</Type>
+<SqlColumnNumber>4</SqlColumnNumber>
+</Property>
+
+<Property name="rut">
+<Type>%Numeric</Type>
+<SqlColumnNumber>5</SqlColumnNumber>
+</Property>
+
+<Property name="fechaemision">
+<Type>%String</Type>
+<SqlColumnNumber>6</SqlColumnNumber>
+</Property>
+
+<Parameter name="RECORDMAPGENERATED">
+<Default>1</Default>
+</Parameter>
+
+<Storage name="Default">
+<Type>%Storage.Persistent</Type>
+<DataLocation>^DESTINOS.PC.CERTIFI4FB0.RecordD</DataLocation>
+<DefaultData>RecordDefaultData</DefaultData>
+<IdLocation>^DESTINOS.PC.CERTIFI4FB0.RecordD</IdLocation>
+<IndexLocation>^DESTINOS.PC.CERTIFI4FB0.RecordI</IndexLocation>
+<StreamLocation>^DESTINOS.PC.CERTIFI4FB0.RecordS</StreamLocation>
+<ExtentSize>2000000</ExtentSize>
+<Data name="RecordDefaultData">
+<Structure>listnode</Structure>
+<Subscript/>
+<Value name="1">
+<Value>%%CLASSNAME</Value>
+</Value>
+<Value name="2">
+<Value>numero</Value>
+</Value>
+<Value name="3">
+<Value>%Source</Value>
+</Value>
+<Value name="4">
+<Value>sem</Value>
+</Value>
+<Value name="5">
+<Value>rut</Value>
+</Value>
+<Value name="6">
+<Value>fechaemision</Value>
+</Value>
+<Value name="7">
+<Value>ano</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+
+
+<Class name="DESTINOS.PC.CERTIFICADOS">
+<Description>
+RECORDMAP: Modified during compilation of RecordMap 'DESTINOS.PC.CERTIFICADOS'
+on 2022-04-26 at 17:10:49.892 [2022-04-26 21:10:49.892 UTC]
+by user cesar</Description>
+<Super>EnsLib.RecordMap.RecordMap</Super>
+<TimeChanged>66225,61849.893823</TimeChanged>
+<TimeCreated>66225,61000.0941979</TimeCreated>
+
+<Method name="GetObject">
+<Description>
+Method to retrieve a record from a stream or device. This method will be generated based on the
+structure of the RecordMap. For testing purposes, a file name may be passed in the pStream argument.</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec><![CDATA[pStream:%IO.DeviceStream,*pObject:%RegisteredObject,pTimeout:%Numeric=-1,&pLookAhead:%String="",pLabelFound:%Boolean=0]]></FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	Try {
+		Set tStatus = $$$OK
+		Set pObject = $$$NULLOREF
+		If '$IsObject(pStream) {
+			Set tFilename = pStream
+			Set pStream = ##class(%IO.FileStream).%New()
+			Do pStream.Open(tFilename,,pTimeout,"UTF-8", .tStatus)
+			If $$$ISERR(tStatus) Quit
+		}
+		Set tObjectName = $parameter($this,"OBJECTNAME")
+		Set tObject = $classmethod(tObjectName,"%New")
+		If '$IsObject(tObject) {
+			Set tStatus = $$$ERROR($$$CannotCreateObject,tObjectName)
+			Quit
+		}
+		Set tObject.%Source = pStream.Name
+		Set tGetTopFields = $parameter(tObject,"INCLUDETOPFIELDS")
+		If pStream.AtEnd && (""=pLookAhead) {
+			Set tStatus = $$$ERROR($$$EnsRecordMapErrStreamAtEnd, pStream.Name)
+			Quit
+		}
+		Set pStream.CharEncoding = "UTF-8"
+
+		#; Parse incoming stream
+		Set tStatus = ..GetRecord(pStream, tObject, tGetTopFields, pTimeout, .pLookAhead, pLabelFound)
+		If $$$ISERR(tStatus) Quit
+	}
+	Catch ex {
+		Set tStatus = ex.AsStatus()
+	}
+	If $$$ISERR(tStatus) { Set pObject = $$$NULLOREF }
+	Else { Set pObject = tObject }
+	Quit tStatus
+]]></Implementation>
+</Method>
+
+<Method name="PutObject">
+<Description>
+Method to write a record to a stream or device. This method will be generated based on the
+structure of the RecordMap. For testing purposes, a file name may be passed in the pStream argument.</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec><![CDATA[pStream:%IO.DeviceStream,pObject:%RegisteredObject,pFlush:%Boolean=1,&pPadArray:%String]]></FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	Try {
+		Set tStatus = $$$OK
+		If '$IsObject(pStream) {
+			Set tFilename = pStream
+			Set pStream = ##class(%IO.FileStream).%New()
+			Do pStream.Open(tFilename,"WAE",,"UTF-8", .tStatus)
+			If $$$ISERR(tStatus) Quit
+		}
+		Set tHasTopFields = $parameter(pObject,"INCLUDETOPFIELDS")
+		Set pStream.CharEncoding = "UTF-8"
+
+		Set tStatus = ..PutRecord(pStream, pObject, tHasTopFields, .pPadArray)
+		If $$$ISERR(tStatus) Quit
+		If pFlush Do pStream.Flush(.tStatus)
+		If $$$ISERR(tStatus) Quit
+	}
+	Catch ex {
+		Set tStatus = ex.AsStatus()
+	}
+	Quit tStatus
+]]></Implementation>
+</Method>
+
+<Parameter name="OBJECTNAME">
+<Default>DESTINOS.PC.CERTIFICADOS.Record</Default>
+</Parameter>
+
+<Method name="GetRecord">
+<Description>
+Internal helper method to perform parse of incoming data</Description>
+<Internal>1</Internal>
+<ClassMethod>1</ClassMethod>
+<FormalSpec><![CDATA[pStream:%IO.DeviceStream,pObject:%RegisteredObject,pGetTopFields:%Boolean,pTimeout:%Numeric,&pLookAhead:%String="",pLabelFound:%Boolean=0]]></FormalSpec>
+<Private>1</Private>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	Set tStatus = $$$OK
+	If pLabelFound { Set tRecLabel = "" } 
+	Else { Set tRecLabel = "" } 
+	Set tStatus = ..chunkRecord(pStream, .tRecordData, .tCharCount, "", pTimeout, "", tRecLabel, .pLookAhead, "")
+	If $$$ISERR(tStatus) Quit tStatus
+	Set tMaxLocal = $$$MaxLocalLength
+	Set tRecordData("charcount") = +$get(tCharCount)
+	Set tCurrChunk = 1
+	Set tTopPiece = 1
+	Set tCurrSep = 1
+	Set tStrings = 1
+	Set tCurrString = ""
+	Set tSeps = $listbuild($char(44))
+	If '$data(tRecordData(tCurrChunk, "block")) {
+		Set tCurrString = $piece(tRecordData(tCurrChunk), $char(44), tTopPiece)
+	}
+	Else {
+		Set tCurrString = tRecordData(tCurrChunk)
+		Set tCurrPiece = 1
+	}
+	Do ..checkMerge(.tCurrChunk, .tRecordData, .tCurrString, $char(44), .tTopPiece)
+	If pGetTopFields {
+		Set pObject.numero =  pObject.numeroDisplayToLogical(tCurrString)
+	}
+	If '$data(tRecordData(tCurrChunk, "block")) {
+		Set tCurrString = $piece(tRecordData(tCurrChunk), $char(44), tTopPiece)
+	}
+	Do ..checkMerge(.tCurrChunk, .tRecordData, .tCurrString, $char(44), .tTopPiece)
+	If pGetTopFields {
+		Set pObject.ano =  pObject.anoDisplayToLogical(tCurrString)
+	}
+	If '$data(tRecordData(tCurrChunk, "block")) {
+		Set tCurrString = $piece(tRecordData(tCurrChunk), $char(44), tTopPiece)
+	}
+	Do ..checkMerge(.tCurrChunk, .tRecordData, .tCurrString, $char(44), .tTopPiece)
+	If pGetTopFields {
+		Set pObject.sem =  pObject.semDisplayToLogical(tCurrString)
+	}
+	If '$data(tRecordData(tCurrChunk, "block")) {
+		Set tCurrString = $piece(tRecordData(tCurrChunk), $char(44), tTopPiece)
+	}
+	Do ..checkMerge(.tCurrChunk, .tRecordData, .tCurrString, $char(44), .tTopPiece)
+	If pGetTopFields {
+		Set pObject.rut =  pObject.rutDisplayToLogical(tCurrString)
+	}
+	If '$data(tRecordData(tCurrChunk, "block")) {
+		Set tCurrString = $piece(tRecordData(tCurrChunk), $char(44), tTopPiece)
+	}
+	Do ..checkMerge(.tCurrChunk, .tRecordData, .tCurrString, $char(44), .tTopPiece)
+	If pGetTopFields {
+		Set pObject.fechaemision = tCurrString
+	}
+	Quit tStatus
+]]></Implementation>
+</Method>
+
+<Method name="PutRecord">
+<Description>
+Internal helper method to output object to a stream</Description>
+<Internal>1</Internal>
+<ClassMethod>1</ClassMethod>
+<FormalSpec><![CDATA[pStream:%IO.DeviceStream,pObject:%RegisteredObject,pHasTopFields:%Boolean,&pPadArray:%String]]></FormalSpec>
+<Private>1</Private>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	Set tStatus = $$$OK
+	Set tmpStream=##class(%Stream.TmpBinary).%New()
+	Do tmpStream.Write($select(pHasTopFields: pObject.numeroLogicalToDisplay(pObject.numero),1: ""))
+	Do tmpStream.Write($char(44) _ $select(pHasTopFields: pObject.anoLogicalToDisplay(pObject.ano),1: ""))
+	Do tmpStream.Write($char(44) _ $select(pHasTopFields: pObject.semLogicalToDisplay(pObject.sem),1: ""))
+	Do tmpStream.Write($char(44) _ $select(pHasTopFields: pObject.rutLogicalToDisplay(pObject.rut),1: ""))
+	Do tmpStream.Write($char(44) _ $select(pHasTopFields: pObject.fechaemision,1: ""))
+	Do pStream.CopyFrom(tmpStream,,0,.tStatus)
+	Quit tStatus
+]]></Implementation>
+</Method>
+
+<Method name="GetGeneratedClasses">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>*pClasses:%String</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	Kill pClasses
+	Set pClasses("DESTINOS.PC.CERTIFICADOS.Record")=""
+	Set pClasses($classname())=""
+	Quit $$$OK
+]]></Implementation>
+</Method>
+
+<Method name="getIdentifier">
+<ClassMethod>1</ClassMethod>
+<CodeMode>expression</CodeMode>
+<FormalSpec/>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[""
+]]></Implementation>
+</Method>
+
+<Method name="getType">
+<ClassMethod>1</ClassMethod>
+<CodeMode>expression</CodeMode>
+<FormalSpec/>
+<ReturnType>EnsLib.RecordMap.Model.DataType.RecordType</ReturnType>
+<Implementation><![CDATA["delimited"
+]]></Implementation>
+</Method>
+
+<XData name="RecordMap">
+<XMLNamespace>http://www.intersystems.com/Ensemble/RecordMap</XMLNamespace>
+<Data><![CDATA[
+<Record xmlns="http://www.intersystems.com/Ensemble/RecordMap" name="DESTINOS.PC.CERTIFICADOS" type="delimited" char_encoding="UTF-8" targetClassname="DESTINOS.PC.CERTIFICADOS.Record" complexBatchManaged="0" padFromLeft="0" allowEarlyTerminator="0">
+  <Separators>
+    <Separator>,</Separator>
+  </Separators>
+  <Field name="numero" required="1" ignored="0" datatype="%Numeric" sqlColumn="2" repeating="0">
+  </Field>
+  <Field name="ano" required="0" ignored="0" datatype="%Numeric" sqlColumn="3" repeating="0">
+  </Field>
+  <Field name="sem" required="0" ignored="0" datatype="%Numeric" sqlColumn="4" repeating="0">
+  </Field>
+  <Field name="rut" required="0" ignored="0" datatype="%Numeric" sqlColumn="5" repeating="0">
+  </Field>
+  <Field name="fechaemision" required="0" ignored="0" datatype="%String" sqlColumn="6" repeating="0">
+  </Field>
+</Record>
+]]></Data>
+</XData>
+</Class>
+
+
+
+
+<Class name="DTL.PC.CERTIFICADOS">
+<Super>Ens.DataTransformDTL</Super>
+<TimeChanged>66225,61042.3160261</TimeChanged>
+<TimeCreated>66225,61042.3151411</TimeCreated>
+<DependsOn>RM.PC.CERTIFICADOS,DESTINOS.PC.CERTIFICADOS</DependsOn>
+
+<XData name="DTL">
+<Description>
+DTL Definition.</Description>
+<XMLNamespace>http://www.intersystems.com/dtl</XMLNamespace>
+<Data><![CDATA[
+<transform targetClass='DESTINOS.PC.CERTIFICADOS' targetDocType='' sourceClass='RM.PC.CERTIFICADOS' sourceDocType='' create='new' language='objectscript'>
+</transform>
+]]></Data>
+</XData>
+
+<Parameter name="IGNOREMISSINGSOURCE">
+<Default>1</Default>
+</Parameter>
+
+<Parameter name="REPORTERRORS">
+<Default>1</Default>
+</Parameter>
+
+<Parameter name="TREATEMPTYREPEATINGFIELDASNULL">
+<Default>0</Default>
+</Parameter>
+</Class>
+
+
+
+
+<Class name="RM.PC.CERTIFICADOS.Batch">
+<Description>
+RECORDMAP: Modified during compilation of RecordMap 'RM.PC.CERTIFICADOS'
+on 2022-04-26 at 17:11:06.037 [2022-04-26 21:11:06.037 UTC]
+by user cesar</Description>
+<Super>%Library.Persistent,EnsLib.RecordMap.SimpleBatch</Super>
+<TimeChanged>66225,61866.0374519</TimeChanged>
+<TimeCreated>66225,51750.0163089</TimeCreated>
+
+<Parameter name="XMLNAME">
+<Default>RM_PC_CERTIFICADOS_Batch</Default>
+</Parameter>
+
+<Parameter name="RECORDMAPGENERATED">
+<Default>1</Default>
+</Parameter>
+
+<Parameter name="BatchHeader">
+<Default>[CCAP_NUMERO]
+,[CCAP_ANO]
+,[CCAP_SEM]
+,[CCAP_RUT]
+,[CCAP_FECHA_EMISION]</Default>
+</Parameter>
+
+<Parameter name="HeaderTerm">
+</Parameter>
+
+<Parameter name="BatchTrailer">
+</Parameter>
+
+<Parameter name="TrailerTerm">
+</Parameter>
+
+<Parameter name="IgnoreLeadingData">
+<Default>0</Default>
+</Parameter>
+
+<Property name="Records">
+<Type>RM.PC.CERTIFICADOS.Record</Type>
+<Cardinality>many</Cardinality>
+<Inverse>%ParentBatch</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Trigger name="OnDelete">
+<Code>	Set %ok = ..deleteRecords({ID})
+</Code>
+<Event>DELETE</Event>
+</Trigger>
+
+<Parameter name="XMLTYPE">
+<Default>RM_PC_CERTIFICADOS_Batch</Default>
+</Parameter>
+
+<Storage name="Default">
+<Type>%Storage.Persistent</Type>
+<DataLocation>^RM.PC.CERTIFICADOS.BatchD</DataLocation>
+<DefaultData>BatchDefaultData</DefaultData>
+<IdLocation>^RM.PC.CERTIFICADOS.BatchD</IdLocation>
+<IndexLocation>^RM.PC.CERTIFICADOS.BatchI</IndexLocation>
+<StreamLocation>^RM.PC.CERTIFICADOS.BatchS</StreamLocation>
+<Data name="BatchDefaultData">
+<Structure>listnode</Structure>
+<Subscript/>
+<Value name="1">
+<Value>%%CLASSNAME</Value>
+</Value>
+<Value name="2">
+<Value>%Source</Value>
+</Value>
+<Value name="3">
+<Value>BatchHeader</Value>
+</Value>
+<Value name="4">
+<Value>BatchTrailer</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+
+
+<Class name="RM.PC.CERTIFICADOS.Record">
+<Description>
+RECORDMAP: Generated from RecordMap 'RM.PC.CERTIFICADOS'
+on 2022-04-26 at 17:11:06.003 [2022-04-26 21:11:06.003 UTC]
+by user cesar</Description>
+<ProcedureBlock>1</ProcedureBlock>
+<Super>%Persistent,%XML.Adaptor,Ens.Request,EnsLib.RecordMap.Base</Super>
+<TimeChanged>66225,61866.0898566</TimeChanged>
+<TimeCreated>66225,61866.0029997</TimeCreated>
+<Inheritance>right</Inheritance>
+
+<Parameter name="INCLUDETOPFIELDS">
+<Default>1</Default>
+</Parameter>
+
+<Property name="CCAPNUMERO">
+<Description>
+</Description>
+<Type>%Numeric</Type>
+<Required>1</Required>
+<SqlColumnNumber>2</SqlColumnNumber>
+</Property>
+
+<Property name="CCAPANO">
+<Type>%Numeric</Type>
+<SqlColumnNumber>3</SqlColumnNumber>
+</Property>
+
+<Property name="CCAPSEM">
+<Type>%Numeric</Type>
+<SqlColumnNumber>4</SqlColumnNumber>
+</Property>
+
+<Property name="CCAPRUT">
+<Type>%Numeric</Type>
+<SqlColumnNumber>5</SqlColumnNumber>
+</Property>
+
+<Property name="CCAPFECHAEMISION">
+<Type>%String</Type>
+<SqlColumnNumber>6</SqlColumnNumber>
+</Property>
+
+<Property name="%ParentBatch">
+<Type>RM.PC.CERTIFICADOS.Batch</Type>
+<Cardinality>one</Cardinality>
+<Inverse>Records</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Index name="%ParentBatchIdx">
+<Properties>%ParentBatch</Properties>
+</Index>
+
+<Index name="CCAPNUMEROIdx">
+<IdKey>1</IdKey>
+<Properties>CCAPNUMERO</Properties>
+</Index>
+
+<Parameter name="RECORDMAPGENERATED">
+<Default>1</Default>
+</Parameter>
+
+<Storage name="Default">
+<Type>%Storage.Persistent</Type>
+<DataLocation>^RM.PC.CERTIFICADOS.RecordD</DataLocation>
+<DefaultData>RecordDefaultData</DefaultData>
+<IdLocation>^RM.PC.CERTIFICADOS.RecordD</IdLocation>
+<IndexLocation>^RM.PC.CERTIFICADOS.RecordI</IndexLocation>
+<StreamLocation>^RM.PC.CERTIFICADOS.RecordS</StreamLocation>
+<ExtentSize>2000000</ExtentSize>
+<Data name="RecordDefaultData">
+<Structure>listnode</Structure>
+<Subscript/>
+<Value name="1">
+<Value>%%CLASSNAME</Value>
+</Value>
+<Value name="2">
+<Value>%Source</Value>
+</Value>
+<Value name="3">
+<Value>CCAPSEM</Value>
+</Value>
+<Value name="4">
+<Value>CCAPRUT</Value>
+</Value>
+<Value name="5">
+<Value>CCAPFECHAEMISION</Value>
+</Value>
+<Value name="6">
+<Value>%ParentBatch</Value>
+</Value>
+<Value name="7">
+<Value>CCAPANO</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+
+
+<Class name="RM.PC.CERTIFICADOS">
+<Description>
+RECORDMAP: Modified during compilation of RecordMap 'RM.PC.CERTIFICADOS'
+on 2022-04-26 at 17:11:06.043 [2022-04-26 21:11:06.043 UTC]
+by user cesar</Description>
+<Super>EnsLib.RecordMap.RecordMap</Super>
+<TimeChanged>66225,61866.0451468</TimeChanged>
+<TimeCreated>66225,52084.817377</TimeCreated>
+
+<Method name="GetObject">
+<Description>
+Method to retrieve a record from a stream or device. This method will be generated based on the
+structure of the RecordMap. For testing purposes, a file name may be passed in the pStream argument.</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec><![CDATA[pStream:%IO.DeviceStream,*pObject:%RegisteredObject,pTimeout:%Numeric=-1,&pLookAhead:%String="",pLabelFound:%Boolean=0]]></FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	Try {
+		Set tStatus = $$$OK
+		Set pObject = $$$NULLOREF
+		If '$IsObject(pStream) {
+			Set tFilename = pStream
+			Set pStream = ##class(%IO.FileStream).%New()
+			Do pStream.Open(tFilename,,pTimeout,"UTF-8", .tStatus)
+			If $$$ISERR(tStatus) Quit
+		}
+		Set tObjectName = $parameter($this,"OBJECTNAME")
+		Set tObject = $classmethod(tObjectName,"%New")
+		If '$IsObject(tObject) {
+			Set tStatus = $$$ERROR($$$CannotCreateObject,tObjectName)
+			Quit
+		}
+		Set tObject.%Source = pStream.Name
+		Set tGetTopFields = $parameter(tObject,"INCLUDETOPFIELDS")
+		If pStream.AtEnd && (""=pLookAhead) {
+			Set tStatus = $$$ERROR($$$EnsRecordMapErrStreamAtEnd, pStream.Name)
+			Quit
+		}
+		Set pStream.CharEncoding = "UTF-8"
+
+		#; Parse incoming stream
+		Set tStatus = ..GetRecord(pStream, tObject, tGetTopFields, pTimeout, .pLookAhead, pLabelFound)
+		If $$$ISERR(tStatus) Quit
+	}
+	Catch ex {
+		Set tStatus = ex.AsStatus()
+	}
+	If $$$ISERR(tStatus) { Set pObject = $$$NULLOREF }
+	Else { Set pObject = tObject }
+	Quit tStatus
+]]></Implementation>
+</Method>
+
+<Method name="PutObject">
+<Description>
+Method to write a record to a stream or device. This method will be generated based on the
+structure of the RecordMap. For testing purposes, a file name may be passed in the pStream argument.</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec><![CDATA[pStream:%IO.DeviceStream,pObject:%RegisteredObject,pFlush:%Boolean=1,&pPadArray:%String]]></FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	Try {
+		Set tStatus = $$$OK
+		If '$IsObject(pStream) {
+			Set tFilename = pStream
+			Set pStream = ##class(%IO.FileStream).%New()
+			Do pStream.Open(tFilename,"WAE",,"UTF-8", .tStatus)
+			If $$$ISERR(tStatus) Quit
+		}
+		Set tHasTopFields = $parameter(pObject,"INCLUDETOPFIELDS")
+		Set pStream.CharEncoding = "UTF-8"
+
+		Set tStatus = ..PutRecord(pStream, pObject, tHasTopFields, .pPadArray)
+		If $$$ISERR(tStatus) Quit
+		If pFlush Do pStream.Flush(.tStatus)
+		If $$$ISERR(tStatus) Quit
+	}
+	Catch ex {
+		Set tStatus = ex.AsStatus()
+	}
+	Quit tStatus
+]]></Implementation>
+</Method>
+
+<Parameter name="OBJECTNAME">
+<Default>RM.PC.CERTIFICADOS.Record</Default>
+</Parameter>
+
+<Method name="GetRecord">
+<Description>
+Internal helper method to perform parse of incoming data</Description>
+<Internal>1</Internal>
+<ClassMethod>1</ClassMethod>
+<FormalSpec><![CDATA[pStream:%IO.DeviceStream,pObject:%RegisteredObject,pGetTopFields:%Boolean,pTimeout:%Numeric,&pLookAhead:%String="",pLabelFound:%Boolean=0]]></FormalSpec>
+<Private>1</Private>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	Set tStatus = $$$OK
+	If pLabelFound { Set tRecLabel = "" } 
+	Else { Set tRecLabel = "" } 
+	Set tStatus = ..chunkRecord(pStream, .tRecordData, .tCharCount, "", pTimeout, "", tRecLabel, .pLookAhead, "")
+	If $$$ISERR(tStatus) Quit tStatus
+	Set tMaxLocal = $$$MaxLocalLength
+	Set tRecordData("charcount") = +$get(tCharCount)
+	Set tCurrChunk = 1
+	Set tTopPiece = 1
+	Set tCurrSep = 1
+	Set tStrings = 1
+	Set tCurrString = ""
+	Set tSeps = $listbuild($char(44))
+	If '$data(tRecordData(tCurrChunk, "block")) {
+		Set tCurrString = $piece(tRecordData(tCurrChunk), $char(44), tTopPiece)
+	}
+	Else {
+		Set tCurrString = tRecordData(tCurrChunk)
+		Set tCurrPiece = 1
+	}
+	Do ..checkMerge(.tCurrChunk, .tRecordData, .tCurrString, $char(44), .tTopPiece)
+	If pGetTopFields {
+		Set pObject.CCAPNUMERO =  pObject.CCAPNUMERODisplayToLogical(tCurrString)
+	}
+	If '$data(tRecordData(tCurrChunk, "block")) {
+		Set tCurrString = $piece(tRecordData(tCurrChunk), $char(44), tTopPiece)
+	}
+	Do ..checkMerge(.tCurrChunk, .tRecordData, .tCurrString, $char(44), .tTopPiece)
+	If pGetTopFields {
+		Set pObject.CCAPANO =  pObject.CCAPANODisplayToLogical(tCurrString)
+	}
+	If '$data(tRecordData(tCurrChunk, "block")) {
+		Set tCurrString = $piece(tRecordData(tCurrChunk), $char(44), tTopPiece)
+	}
+	Do ..checkMerge(.tCurrChunk, .tRecordData, .tCurrString, $char(44), .tTopPiece)
+	If pGetTopFields {
+		Set pObject.CCAPSEM =  pObject.CCAPSEMDisplayToLogical(tCurrString)
+	}
+	If '$data(tRecordData(tCurrChunk, "block")) {
+		Set tCurrString = $piece(tRecordData(tCurrChunk), $char(44), tTopPiece)
+	}
+	Do ..checkMerge(.tCurrChunk, .tRecordData, .tCurrString, $char(44), .tTopPiece)
+	If pGetTopFields {
+		Set pObject.CCAPRUT =  pObject.CCAPRUTDisplayToLogical(tCurrString)
+	}
+	If '$data(tRecordData(tCurrChunk, "block")) {
+		Set tCurrString = $piece(tRecordData(tCurrChunk), $char(44), tTopPiece)
+	}
+	Do ..checkMerge(.tCurrChunk, .tRecordData, .tCurrString, $char(44), .tTopPiece)
+	If pGetTopFields {
+		Set pObject.CCAPFECHAEMISION = tCurrString
+	}
+	Quit tStatus
+]]></Implementation>
+</Method>
+
+<Method name="PutRecord">
+<Description>
+Internal helper method to output object to a stream</Description>
+<Internal>1</Internal>
+<ClassMethod>1</ClassMethod>
+<FormalSpec><![CDATA[pStream:%IO.DeviceStream,pObject:%RegisteredObject,pHasTopFields:%Boolean,&pPadArray:%String]]></FormalSpec>
+<Private>1</Private>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	Set tStatus = $$$OK
+	Set tmpStream=##class(%Stream.TmpBinary).%New()
+	Do tmpStream.Write($select(pHasTopFields: pObject.CCAPNUMEROLogicalToDisplay(pObject.CCAPNUMERO),1: ""))
+	Do tmpStream.Write($char(44) _ $select(pHasTopFields: pObject.CCAPANOLogicalToDisplay(pObject.CCAPANO),1: ""))
+	Do tmpStream.Write($char(44) _ $select(pHasTopFields: pObject.CCAPSEMLogicalToDisplay(pObject.CCAPSEM),1: ""))
+	Do tmpStream.Write($char(44) _ $select(pHasTopFields: pObject.CCAPRUTLogicalToDisplay(pObject.CCAPRUT),1: ""))
+	Do tmpStream.Write($char(44) _ $select(pHasTopFields: pObject.CCAPFECHAEMISION,1: ""))
+	Do pStream.CopyFrom(tmpStream,,0,.tStatus)
+	Quit tStatus
+]]></Implementation>
+</Method>
+
+<Method name="GetGeneratedClasses">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>*pClasses:%String</FormalSpec>
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	Kill pClasses
+	Set pClasses("RM.PC.CERTIFICADOS.Batch")=""
+	Set pClasses("RM.PC.CERTIFICADOS.Record")=""
+	Set pClasses($classname())=""
+	Quit $$$OK
+]]></Implementation>
+</Method>
+
+<Method name="getIdentifier">
+<ClassMethod>1</ClassMethod>
+<CodeMode>expression</CodeMode>
+<FormalSpec/>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[""
+]]></Implementation>
+</Method>
+
+<Method name="getType">
+<ClassMethod>1</ClassMethod>
+<CodeMode>expression</CodeMode>
+<FormalSpec/>
+<ReturnType>EnsLib.RecordMap.Model.DataType.RecordType</ReturnType>
+<Implementation><![CDATA["delimited"
+]]></Implementation>
+</Method>
+
+<XData name="RecordMap">
+<XMLNamespace>http://www.intersystems.com/Ensemble/RecordMap</XMLNamespace>
+<Data><![CDATA[
+<Record xmlns="http://www.intersystems.com/Ensemble/RecordMap" name="RM.PC.CERTIFICADOS" type="delimited" char_encoding="UTF-8" targetClassname="RM.PC.CERTIFICADOS.Record" batchClass="RM.PC.CERTIFICADOS.Batch" complexBatchManaged="0" padFromLeft="0" allowEarlyTerminator="0">
+  <Separators>
+    <Separator>,</Separator>
+  </Separators>
+  <Field name="CCAPNUMERO" required="1" ignored="0" datatype="%Numeric" index="idkey" sqlColumn="2" repeating="0">
+  </Field>
+  <Field name="CCAPANO" required="0" ignored="0" datatype="%Numeric" sqlColumn="3" repeating="0">
+  </Field>
+  <Field name="CCAPSEM" required="0" ignored="0" datatype="%Numeric" sqlColumn="4" repeating="0">
+  </Field>
+  <Field name="CCAPRUT" required="0" ignored="0" datatype="%Numeric" sqlColumn="5" repeating="0">
+  </Field>
+  <Field name="CCAPFECHAEMISION" required="0" ignored="0" datatype="%String" sqlColumn="6" repeating="0">
+  </Field>
+</Record>
+]]></Data>
+</XData>
+</Class>
+
+
+</Export>
